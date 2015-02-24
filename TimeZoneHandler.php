@@ -13,6 +13,7 @@ class TimeZoneHandler{
 	private $output;
 
 	public function TimeZoneHandler( $config ){
+
 		if(!$config){
 			$this->status = 400;
 			die('Missing configuration parameter object for TimezoneHandler');
@@ -31,7 +32,21 @@ class TimeZoneHandler{
 		}
 	}
 
-	// outputs to json by default
+	public function getTimeOffsetBetween($timezone1,$timezone2){
+			$offset = new StdClass();
+
+			$tz1 = new DateTimeZone($timezone1);
+			$tz2 = new DateTimeZone($timezone2);
+			$tz1_now = new DateTime("now", $tz1);
+			$tz1_now = new DateTime("now", $tz1);
+
+			$offset->milliseconds = $tz1->getOffset($tz1_now) - $tz2->getOffset($tz1_now);
+			$offset->hours = $offset->milliseconds/(60*60);
+			
+			return $offset;
+	}
+
+	// outputs to json object by default
 	public function getServerTimeAdjusted($json=true){
 			$output = new StdClass();
 			$output->server_actual = new StdClass();
@@ -84,12 +99,9 @@ class TimeZoneHandler{
 			else{
 				return $output;	
 			}
-			
-
 	}
 
 	public function getHTTPStatus(){
-		
 		//return the value from $this->status
 		//if it's not set, throw an error like "you can't read status until you do something first!"
 		
