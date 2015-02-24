@@ -1,6 +1,10 @@
 Usage:
 
-private function checkIfClientAlreadySubmittedAnEntry(){
+
+```
+#!php
+
+function checkIfClientAlreadySubmittedAnEntry(){
 
 		//converts UTC time in DB to EST/EDT
 		//gets server time converted to EST/EDT
@@ -59,3 +63,4 @@ private function checkIfClientAlreadySubmittedAnEntry(){
 			return false;
 		}
 	}
+```
