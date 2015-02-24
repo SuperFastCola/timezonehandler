@@ -32,6 +32,10 @@ class TimeZoneHandler{
 		}
 	}
 
+	//use two php.ini compatible timezone strings getTimeOffsetBetween('UTC','America/New_York')
+	//http://php.net/manual/en/timezones.php
+	//http://php.net/manual/en/timezones.america.php
+	//http://php.net/manual/en/timezones.europe.php
 	public function getTimeOffsetBetween($timezone1,$timezone2){
 			$offset = new StdClass();
 
