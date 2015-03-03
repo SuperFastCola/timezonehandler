@@ -12,30 +12,25 @@ class TimeZoneHandler{
 	private $status;
 	private $output;
 
-	public function TimeZoneHandler( $config ){
+	public function TimeZoneHandler( $config = NULL){
 
-		if(!$config){
-			$this->status = 400;
-			die('Missing configuration parameter object for TimezoneHandler');
+		if(!isset($config)){
+			$this->configuration = array();
 		}
-		else{
-			$this->configuration = $config;
-			$this->output = $this->configuration;
+		
+		$this->configuration = $config;
+		$this->output = $this->configuration;
 
-			$this->server_timezone = new DateTimeZone(ini_get('date.timezone'));
-			$this->contest_timezone = new DateTimeZone( ((isset($this->configuration['promo_timezone']))?$this->configuration['promo_timezone']:'America/New_York') );
-			$this->server_date_object = new DateTime("now", $this->server_timezone);
-			$this->contest_date_object = new DateTime("now", $this->contest_timezone);
-			$this->timezone_hours_offset = $this->server_timezone->getOffset($this->server_date_object) - $this->contest_timezone->getOffset($this->contest_date_object);
-			$this->server_start_time_adjusted = $this->server_date_object->getTimestamp() - $this->timezone_hours_offset;
-			$this->status = 200;
-		}
+		$this->server_timezone = new DateTimeZone(ini_get('date.timezone'));
+		$this->contest_timezone = new DateTimeZone( ((isset($this->configuration['promo_timezone']))?$this->configuration['promo_timezone']:'America/New_York') );
+		$this->server_date_object = new DateTime("now", $this->server_timezone);
+		$this->contest_date_object = new DateTime("now", $this->contest_timezone);
+		$this->timezone_hours_offset = $this->server_timezone->getOffset($this->server_date_object) - $this->contest_timezone->getOffset($this->contest_date_object);
+		$this->server_start_time_adjusted = $this->server_date_object->getTimestamp() - $this->timezone_hours_offset;
+		$this->status = 200;
+		
 	}
 
-	//use two php.ini compatible timezone strings getTimeOffsetBetween('UTC','America/New_York')
-	//http://php.net/manual/en/timezones.php
-	//http://php.net/manual/en/timezones.america.php
-	//http://php.net/manual/en/timezones.europe.php
 	public function getTimeOffsetBetween($timezone1,$timezone2){
 			$offset = new StdClass();
 
@@ -77,16 +72,21 @@ class TimeZoneHandler{
 				$output->contest->end->timestamp = strtotime($this->configuration["promo_end_timestamp"]);
 			}
 
-			//server time between contest start and end and if an end if defined
-			if($output->contest->start->timestamp<=$output->server_adjusted->timestamp && isset($output->contest->end) && $output->contest->end->timestamp>=$output->server_adjusted->timestamp){
-				$output->contest->status = "open";	
-			}
-			//server time greater than contest start and no end set
-			elseif($output->contest->start->timestamp<=$output->server_adjusted->timestamp && !isset($output->contest->end)){ //evergreen promotion
-				$output->contest->status = "open";	
+			if(isset($output->contest->start)){
+				//server time between contest start and end and if an end if defined
+				if($output->contest->start->timestamp<=$output->server_adjusted->timestamp && isset($output->contest->end) && $output->contest->end->timestamp>=$output->server_adjusted->timestamp){
+					$output->contest->status = "open";	
+				}
+				//server time greater than contest start and no end set
+				elseif($output->contest->start->timestamp<=$output->server_adjusted->timestamp && !isset($output->contest->end)){ //evergreen promotion
+					$output->contest->status = "open";	
+				}
+				else{
+					$output->contest->status = "closed";	
+				}
 			}
 			else{
-				$output->contest->status = "closed";	
+					$output->contest->status = "no contest";	
 			}
 
 			$output->contest->timezone = $this->contest_timezone->getName();
