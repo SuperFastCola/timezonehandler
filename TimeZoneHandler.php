@@ -22,7 +22,9 @@ class TimeZoneHandler{
 		$this->output = $this->configuration;
 
 		$this->server_timezone = new DateTimeZone(ini_get('date.timezone'));
-		$this->contest_timezone = new DateTimeZone( ((isset($this->configuration['promo_timezone']))?$this->configuration['promo_timezone']:'America/New_York') );
+
+		$this->contest_timezone = new DateTimeZone( ((isset($this->configuration['promo_timezone']) )?$this->configuration['promo_timezone']:'America/New_York') );
+		
 		$this->server_date_object = new DateTime("now", $this->server_timezone);
 		$this->contest_date_object = new DateTime("now", $this->contest_timezone);
 		$this->timezone_hours_offset = $this->server_timezone->getOffset($this->server_date_object) - $this->contest_timezone->getOffset($this->contest_date_object);
